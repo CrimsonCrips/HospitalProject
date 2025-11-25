@@ -49,7 +49,7 @@ public class AdministrativeSide extends AdministrativeServer {
             System.out.println("Welcome " + currentEmployee.getName() + ", What would you like to do?");
             HospitalUtils.delay(0.5F);
 
-            System.out.println("SM - Staff Management, RC - Room Check,  R - Return");
+            System.out.println("SM - Staff Management, RC - Room Management,  R - Return");
             switch (scanner.nextLine()) {
                 case "SM" -> {
                     boolean staffManagementPass = false;

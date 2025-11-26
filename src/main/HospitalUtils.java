@@ -1,7 +1,9 @@
 package main;
 
-import java.util.LinkedList;
-import java.util.Scanner;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
+
 
 public class HospitalUtils {
 
@@ -14,7 +16,7 @@ public class HospitalUtils {
         }
     }
 
-    public static void listAdd(LinkedList list){
+    public static void listAdd(List<String> list){
         Scanner scanner = new Scanner(System.in);
         System.out.println("Input value to add inside list, Type 'CONTINUE' to finalize list");
         boolean finished = false;
@@ -34,7 +36,7 @@ public class HospitalUtils {
         }
     }
 
-    public static void listDelete(LinkedList list){
+    public static void listDelete(List<String> list){
         Scanner scanner = new Scanner(System.in);
         System.out.println("Input value to delete inside list, Type 'CONTINUE' to finalize list");
         boolean finished = false;
@@ -65,6 +67,106 @@ public class HospitalUtils {
                 HospitalUtils.delay(0.2F);
             }
         }
+    }
+
+    public static void pushRecord(LinkedList<String> log, String string){
+        LocalDateTime myDateObj = LocalDateTime.now();
+        DateTimeFormatter myFormatObj = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
+        String formattedDate = myDateObj.format(myFormatObj);
+
+        log.add(formattedDate + ":" + string);
+    }
+
+
+    public static void dischargePatient(Patient patient,boolean recovered){
+        Room room = patient.getPatientRoom();
+        if (room != null){
+            patient.setPatientRoom(null);
+            room.setAssignedPatient(null);
+            if (room.getAssignedEmployee() != null){
+                Employee employee = patient.getPatientRoom().getAssignedEmployee();
+                employee.setAssignedRoom(null);
+                room.setAssignedEmployee(null);
+            }
+        }
+        pushRecord(patient.getHistoryLogs(),
+                "Patient, " + patient.getName() + "(" + patient.getPatientId() + ") discharged \n" +
+                        "RECOVERED?: " + recovered);
+    }
+
+    public static void dischargePatient(Patient patient,boolean recovered,String reason){
+        Room room = patient.getPatientRoom();
+        if (room != null){
+            patient.setPatientRoom(null);
+            room.setAssignedPatient(null);
+            if (room.getAssignedEmployee() != null){
+                Employee employee = patient.getPatientRoom().getAssignedEmployee();
+                employee.setAssignedRoom(null);
+                room.setAssignedEmployee(null);
+            }
+        }
+        pushRecord(patient.getHistoryLogs(),
+                "Patient, " + patient.getName() + "(" + patient.getPatientId() + ") discharged \n" +
+                        "RECOVERED?: " + recovered + "\n" +
+                        "Reason:" + reason);
+    }
+
+
+
+    public static void printSortingList(List arrayList,int pagesize){
+        var page = 0;
+        while (true) {
+            printPage(arrayList, (page * pagesize), Math.min((page + 1) * pagesize, arrayList.size()));
+            delay(0.2F);
+            System.out.println("NEXT - Next Page, PREVIOUS - Previous Page, CONTINUE - Continue");
+            var input = getInput();
+            if (input == 0) {
+                page = Math.max(0, page - 1);
+            } else if (input == 1) {
+                page = Math.min(page + 1, arrayList.size() / pagesize);
+            } else if (input == 2) {
+                break;
+            }
+        }
+    }
+
+    private static void printPage(List items, int lower, int upper) {
+        printSeperator();
+        for (var i = lower; i < upper; i++) {
+            System.out.println(items.get(i));
+            printSeperator();
+        }
+    }
+
+    private static int getInput() {
+        final int NEXT = 1;
+        final int PREVIOUS = 0;
+        final int CONTINUE = 2;
+
+        Scanner scanner = new Scanner(System.in);
+        var input = scanner.nextLine();
+        return switch (input) {
+            case "NEXT" -> NEXT;
+            case "PREVIOUS" -> PREVIOUS;
+            case "CONTINUE" -> CONTINUE;
+            default -> -1;
+        };
+    }
+
+    public static boolean presenceCheck(Patient patient){
+        if (!patient.isPresent()){
+            System.out.println("Patient is not present,unable to do task");
+        }
+        return patient.isPresent();
+    }
+
+    public static void printSeperator(){
+        System.out.println("-------------------");
+    }
+
+    public static void viewHistory(Patient currentPatient){
+        List<Object> logLIst = new ArrayList<>(currentPatient.getHistoryLogs());
+        HospitalUtils.printSortingList(logLIst,5);
     }
 
 }

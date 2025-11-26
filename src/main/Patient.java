@@ -1,42 +1,68 @@
 package main;
 
 import java.util.LinkedList;
+import java.util.List;
 
-public class Patient extends Person {
+public class Patient extends Person implements Comparable<Patient> {
 
-    private int patientAge;
+    private Room patientRoom;
     private int patientId;
-    private LinkedList<String> patientMedications = new LinkedList<>();
+    private boolean priority = false;
+    private LinkedList<String> historyLogs = new LinkedList<>();
+    private List<String> patientConditions = new LinkedList<>();
+    private boolean present = false;
 
-    private LinkedList<String> patientAllergies = new LinkedList<>();
+    public Patient(int id, boolean priority){
+        setPriority(priority);
+        setPatientId(id);
+    }
 
-    private LinkedList<String> patientConditions = new LinkedList<>();
+    public boolean isPresent(){
+        return present;
+    }
 
-    public void setPatientAge(int val) {
-        patientAge = val;
+    public void setPresent(boolean val){
+        present = val;
+    }
+
+
+    public boolean isPriority() {
+        return priority;
+    }
+
+    public LinkedList<String> getHistoryLogs(){
+        return historyLogs;
+    }
+
+    public void setPatientRoom(Room val) {
+        patientRoom = val;
     }
 
     public void setPatientId(int val) {
         patientId = val;
     }
 
-    public int getPatientAge() {
-        return patientAge;
+    public void setPriority(boolean var) {
+        priority = var;
+    }
+
+    public Room getPatientRoom() {
+        return patientRoom;
     }
 
     public long getPatientId() {
         return patientId;
     }
 
-    public LinkedList<String> getPatientMedications() {
-        return patientMedications;
-    }
-
-    public LinkedList<String> getPatientAllergies() {
-        return patientAllergies;
-    }
-
-    public LinkedList<String> getPatientConditions() {
+    public List<String> getPatientConditions() {
         return patientConditions;
+    }
+
+    public int compareTo(Patient patient) {
+        return compare(patient.priority, this.priority);
+    }
+
+    public static int compare(boolean x, boolean y) {
+        return Boolean.compare(x, y);
     }
 }

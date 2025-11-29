@@ -23,9 +23,10 @@ public class HospitalUtils {
         while (!finished) {
             String possibleValue = scanner.nextLine();
             if (!list.contains(possibleValue)){
-                if (!possibleValue.equals("CONTINUE")) {
+                if (!possibleValue.toUpperCase(Locale.ROOT).contains("CONTINUE")) {
                     list.add(possibleValue);
                     System.out.println(list);
+                    printSeperator();
                 } else {
                     finished = true;
                 }
@@ -113,10 +114,10 @@ public class HospitalUtils {
 
 
 
-    public static void printSortingList(List arrayList,int pagesize){
+    public static void printSortingList(List arrayList,int pagesize,boolean seperatorEnabled){
         var page = 0;
         while (true) {
-            printPage(arrayList, (page * pagesize), Math.min((page + 1) * pagesize, arrayList.size()));
+            printPage(arrayList, (page * pagesize), Math.min((page + 1) * pagesize, arrayList.size()),seperatorEnabled);
             delay(0.2F);
             System.out.println("NEXT - Next Page, PREVIOUS - Previous Page, CONTINUE - Continue");
             var input = getInput();
@@ -125,16 +126,18 @@ public class HospitalUtils {
             } else if (input == 1) {
                 page = Math.min(page + 1, arrayList.size() / pagesize);
             } else if (input == 2) {
+                printSeperator();
                 break;
             }
         }
     }
 
-    private static void printPage(List items, int lower, int upper) {
-        printSeperator();
+    private static void printPage(List items, int lower, int upper,boolean seperatorEnabled) {
         for (var i = lower; i < upper; i++) {
             System.out.println(items.get(i));
-            printSeperator();
+            if(seperatorEnabled){
+                printSeperator();
+            }
         }
     }
 
@@ -144,8 +147,8 @@ public class HospitalUtils {
         final int CONTINUE = 2;
 
         Scanner scanner = new Scanner(System.in);
-        var input = scanner.nextLine();
-        return switch (input) {
+        String input = scanner.nextLine();
+        return switch (input.toUpperCase()) {
             case "NEXT" -> NEXT;
             case "PREVIOUS" -> PREVIOUS;
             case "CONTINUE" -> CONTINUE;
@@ -166,7 +169,7 @@ public class HospitalUtils {
 
     public static void viewHistory(Patient currentPatient){
         List<Object> logLIst = new ArrayList<>(currentPatient.getHistoryLogs());
-        HospitalUtils.printSortingList(logLIst,5);
+        HospitalUtils.printSortingList(logLIst,5,true);
     }
 
 }

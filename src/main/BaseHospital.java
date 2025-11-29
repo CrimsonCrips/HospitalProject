@@ -2,6 +2,7 @@ package main;
 
 import java.util.*;
 
+import static main.HospitalUtils.delay;
 import static main.HospitalUtils.printSeperator;
 
 public class BaseHospital {
@@ -19,11 +20,13 @@ public class BaseHospital {
         int patientExamples = 23;
         int roomExamples = 27;
 
+
         for (int i = 1; i < patientExamples + 1;i++){
             Patient patient = new Patient(i, false);
             patient.setName("A" + i);
             administrativeServer.getPatientList().add(patient);
             administrativeServer.addToQueue(patient);
+            patient.setPresent(true);
         }
 
         for (int i = 1; i < roomExamples + 1;i++){
@@ -71,7 +74,6 @@ public class BaseHospital {
                     PatientRegistration.register(administrativeServer);
                 }
                 case "S" -> {
-                    System.out.println("to login, use Anon for username and 'password' for password");
                     AdministrativeSide.adminLogin(administrativeServer);
                 }
                 case "C" -> {
@@ -84,6 +86,23 @@ public class BaseHospital {
             }
             printSeperator();
         }
+
+        System.out.println(" _______  ______    _______  __   __  _______        _______        __   __  _______  __   __  _______  _______  ______    _______ \n" +
+                "|       ||    _ |  |       ||  | |  ||       |      |       |      |  |_|  ||       ||  |_|  ||  _    ||       ||    _ |  |       |\n" +
+                "|    ___||   | ||  |   _   ||  | |  ||    _  |      |   ____|      |       ||    ___||       || |_|   ||    ___||   | ||  |  _____|\n" +
+                "|   | __ |   |_||_ |  | |  ||  |_|  ||   |_| |      |  |____       |       ||   |___ |       ||       ||   |___ |   |_||_ | |_____ \n" +
+                "|   ||  ||    __  ||  |_|  ||       ||    ___|      |_____  |      |       ||    ___||       ||  _   | |    ___||    __  ||_____  |\n" +
+                "|   |_| ||   |  | ||       ||       ||   |           _____| |      | ||_|| ||   |___ | ||_|| || |_|   ||   |___ |   |  | | _____| |\n" +
+                "|_______||___|  |_||_______||_______||___|          |_______|      |_|   |_||_______||_|   |_||_______||_______||___|  |_||_______|");
+        delay(2F);
+        printSeperator();
+        System.out.println(
+                "Dane Carmona \n" +
+                "Alex Nicole \n" +
+                "Ocean Gatchalian \n" +
+                "Sean Moya \n" +
+                "Yvone Sanchez \n"
+        );
     }
 
 

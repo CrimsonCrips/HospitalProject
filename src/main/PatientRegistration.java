@@ -17,10 +17,10 @@ public class PatientRegistration extends AdministrativeServer {
         System.out.println("Input patient's full name: ");
         patient.setName(scanner.nextLine());
         HospitalUtils.delay(0.2F);
-        printSeperator();
 
         boolean conditionsPass = false;
         while (!conditionsPass) {
+            printSeperator();
             System.out.println("Does the patient have any conditions?  Y/N?");
             switch (scanner.nextLine()) {
                 case "Y" -> {
@@ -95,6 +95,7 @@ public class PatientRegistration extends AdministrativeServer {
         if (!presentAlready){
             administrativeServer.getPatientList().add(patient);
             System.out.println("Patient, " + patient.getName() + "(" + patient.getPatientId() + ") successfully registered");
+            System.out.println(patient.getPatientConditions());
             pushRecord(patient.getHistoryLogs(),
                     "Patient, " + patient.getName() + "(" + patient.getPatientId() + ") registered. \n" +
                             "Conditions: " + patient.getPatientConditions());
@@ -103,6 +104,7 @@ public class PatientRegistration extends AdministrativeServer {
             oldPatient.getPatientConditions().add(patient.getPatientConditions().toString());
             oldPatient.setPriority(patient.isPriority());
             System.out.println("Patient, " + oldPatient.getName() + "(" + oldPatient.getPatientId() + ") successfully reregistered");
+            System.out.println(oldPatient.getPatientConditions());
             pushRecord(oldPatient.getHistoryLogs(),
                     "Patient, " + oldPatient.getName() + "(" + oldPatient.getPatientId() + ") reregistered. \n" +
                             "Conditions: " + oldPatient.getPatientConditions());

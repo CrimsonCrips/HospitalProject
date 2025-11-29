@@ -45,7 +45,7 @@ public class AdministrativeServer {
         if (list.isEmpty()){
             System.out.println("[Admission Queue] No patients waiting.");
         }
-        printSortingList(list,10);
+        printSortingList(list,10,false);
     }
 
 

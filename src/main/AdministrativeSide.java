@@ -1,5 +1,6 @@
 package main;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
@@ -7,11 +8,10 @@ import java.util.Scanner;
 import static main.HospitalUtils.*;
 
 
-public class AdministrativeSide extends AdministrativeServer {
+public class AdministrativeSide extends AdministrativeServer implements HospitalInterface {
 
 
     public static void adminLogin(AdministrativeServer administrativeServer) {
-        printSeperator();
         ArrayList<Employee> employeeList = administrativeServer.getEmployeeList();
 
         Scanner scanner = new Scanner(System.in);
@@ -19,6 +19,8 @@ public class AdministrativeSide extends AdministrativeServer {
         boolean idPass = false;
         while (!idPass) {
             printSeperator();
+            System.out.println("to login, use Anon for username and 'password' for password");
+            delay(0.2F);
             System.out.println("Enter user's name:");
             String possibleName = scanner.nextLine();
             boolean passed = false;
@@ -46,11 +48,11 @@ public class AdministrativeSide extends AdministrativeServer {
                 HospitalUtils.delay(0.2F);
             }
         }
-        System.out.println("\n=== HOSPITAL MANAGEMENT SYSTEM ===");
-        HospitalUtils.delay(1F);
         boolean usingPass = false;
         while (!usingPass) {
             printSeperator();
+            System.out.println("\n=== HOSPITAL MANAGEMENT SYSTEM ===");
+            HospitalUtils.delay(1F);
             System.out.println("Welcome " + currentEmployee.getName() + ", What would you like to do?");
             HospitalUtils.delay(0.5F);
 
@@ -94,14 +96,13 @@ public class AdministrativeSide extends AdministrativeServer {
                     for (Room room : roomList){
                         String possibleName = room.isOccupied() ? room.getAssignedPatient().getName() : "N/A";
                         String info = "Room No." + room.getRoomNo() + "\n" +
-                                "Occupied: " + possibleName + "\n";
-
-
+                                "Occupied: " + possibleName;
                         list.add(info);
                     }
-                    HospitalUtils.printSortingList(list,5);
+                    HospitalUtils.printSortingList(list,5,true);
                 }
                 case "AR" -> {
+                    printSeperator();
                     showAvailableRooms(administrativeServer);
 
                     boolean mRPass = false;
@@ -141,7 +142,27 @@ public class AdministrativeSide extends AdministrativeServer {
                                                 passed = patient.getPatientId() == possibleId;
                                                 if (passed) {
                                                     patientAddPass = true;
-                                                    assignPatient(patient,selectedRoom);
+                                                    assignPatient(patient,selectedRoom,administrativeServer);
+                                                    if(selectedRoom.getAssignedEmployee() == null){
+                                                        boolean staffQuestion = false;
+                                                        while (!staffQuestion) {
+                                                            System.out.println("Assign a staff inside selected room?  Y/N");
+                                                            printSeperator();
+                                                            switch (scanner.nextLine()) {
+                                                                case "Y" -> {
+                                                                    assignStaff(administrativeServer, selectedRoom);
+                                                                    staffQuestion = true;
+                                                                }
+                                                                case "N" -> {
+                                                                    staffQuestion = true;
+                                                                }
+                                                                default -> {
+                                                                    System.out.println("Unknown response, Please try again\n \n");
+                                                                    HospitalUtils.delay(0.2F);
+                                                                }
+                                                            }
+                                                        }
+                                                    }
                                                     break;
                                                 }
                                             }
@@ -150,36 +171,11 @@ public class AdministrativeSide extends AdministrativeServer {
                                                 HospitalUtils.delay(0.2F);
                                             }
                                         }
+                                        currentRoomPass = true;
                                     }
                                     case "AS" -> {
-                                        boolean staffAddPass = false;
-                                        while (!staffAddPass) {
-                                            printSeperator();
-                                            System.out.println("Enter staff name");
-                                            String possibleName = scanner.nextLine();
-
-                                            boolean passed = false;
-                                            for (Employee employee : employeeList) {
-                                                passed = employee.getName().equals(possibleName);
-                                                if (passed) {
-                                                    staffAddPass = true;
-
-                                                    if (employee.getRoomAssigned() != null){
-                                                        employee.getRoomAssigned().setAssignedEmployee(null);
-                                                        System.out.println(employee.getName() + " reassigned to room: " + roomNo);
-                                                    } else {
-                                                        System.out.println(employee.getName() + " assigned to room: " + roomNo);
-                                                    }
-                                                    selectedRoom.setAssignedEmployee(employee);
-                                                    employee.setAssignedRoom(selectedRoom);
-                                                    break;
-                                                }
-                                            }
-                                            if (!passed) {
-                                                System.out.println(possibleName + " is not in staff list, Please try again");
-                                                HospitalUtils.delay(0.2F);
-                                            }
-                                        }
+                                        assignStaff(administrativeServer, selectedRoom);
+                                        currentRoomPass = true;
                                     }
                                     case "R" -> {
                                         currentRoomPass = true;
@@ -210,7 +206,7 @@ public class AdministrativeSide extends AdministrativeServer {
         ArrayList<Room> roomList = administrativeServer.getRoomList();
         ArrayList<Patient> patientList = administrativeServer.getPatientList();
         Scanner scanner = new Scanner(System.in);
-
+        System.out.println("Note that patient identification format goes as follows:  Name(ID)");
         List<Object> list = new ArrayList<>();
         for (Patient patient : patientList){
             String roomPossible = patient.getPatientRoom() != null ? String.valueOf(patient.getPatientRoom().getRoomNo()) : "N/A";
@@ -219,7 +215,7 @@ public class AdministrativeSide extends AdministrativeServer {
 
             list.add(info);
         }
-        HospitalUtils.printSortingList(list,5);
+        HospitalUtils.printSortingList(list,5,false);
 
         boolean patientPass = false;
         while (!patientPass) {
@@ -247,6 +243,8 @@ public class AdministrativeSide extends AdministrativeServer {
                             "HC - History Check, CC - Conditions Check, AM - Assign Medications,  R - Return");
                     switch (scanner.nextLine()) {
                         case "AM" -> {
+                            if (!presenceCheck(currentPatient))
+                                return;
                             createTreatment(currentPatient);
                         }
                         case "DP" -> {
@@ -267,7 +265,7 @@ public class AdministrativeSide extends AdministrativeServer {
                                         System.out.println("Write down remarks");
 
                                         String remarks = scanner.nextLine();
-                                        dischargePatient(currentPatient, true, remarks);
+                                        dischargePatient(currentPatient, false, remarks);
                                         recoveredPass = true;
                                         patientManage = true;
                                     }
@@ -300,7 +298,7 @@ public class AdministrativeSide extends AdministrativeServer {
 
                                 if (selectedRoom != null){
                                     mRPass = true;
-                                    assignPatient(currentPatient,selectedRoom);
+                                    assignPatient(currentPatient,selectedRoom,administrativeServer);
                                 } else {
                                     System.out.println("Room no. " + roomNo + " is missing, Please try again");
                                 }
@@ -333,11 +331,6 @@ public class AdministrativeSide extends AdministrativeServer {
                         case "HC" -> {
                             viewHistory(currentPatient);
                         }
-                        case "CC" -> {
-                            for (String s : currentPatient.getPatientConditions()){
-                                System.out.println(s);
-                            }
-                        }
                         case "R" -> {
                             patientManage = true;
                         }
@@ -358,13 +351,66 @@ public class AdministrativeSide extends AdministrativeServer {
     }
 
 
-    private static void assignPatient(Patient patient, Room room){
+    private static void assignPatient(Patient patient, Room room,AdministrativeServer administrativeServer){
+        Scanner scanner = new Scanner(System.in);
         int roomNo = room.getRoomNo();
-        if (patient.getPatientRoom() != null){
-            patient.getPatientRoom().setAssignedPatient(null);
-            System.out.println(patient.getName() + " reassigned to room " + roomNo);
+        Patient replacedPatient = room.getAssignedPatient();
+        if (replacedPatient != null){
+            boolean replaceQuestion = false;
+            while (!replaceQuestion) {
+                System.out.println(replacedPatient.getName() + " will result in no rooms, Assign to new room? Y/N");
+                printSeperator();
+                switch (scanner.nextLine()) {
+                    case "Y" -> {
+                        showAvailableRooms(administrativeServer);
+                        boolean mRPass = false;
+                        System.out.println("Enter room no.");
+                        while (!mRPass) {
+                            printSeperator();
+                            int newRoomNo = scanner.nextInt();
+                            scanner.nextLine();
+                            Room selectedRoom = null;
+
+                            for (Room newRoom : administrativeServer.getRoomList()){
+                                if (newRoom.getRoomNo() == newRoomNo){
+                                    selectedRoom = newRoom;
+                                }
+                            }
+
+                            if (selectedRoom != null){
+                                mRPass = true;
+                                assignPatient(replacedPatient,selectedRoom,administrativeServer);
+                            } else {
+                                System.out.println("Room no. " + newRoomNo + " is missing, Please try again");
+                            }
+                        }
+                        replaceQuestion = true;
+                    }
+                    case "N" -> {
+                        replaceQuestion = true;
+                    }
+                    default -> {
+                        System.out.println("Unknown response, Please try again\n \n");
+                        HospitalUtils.delay(0.2F);
+                    }
+                }
+            }
+            HospitalUtils.delay(0.5F);
+            printSeperator();
+
+            if (patient.getPatientRoom() != null){
+                System.out.println(patient.getName() + " reassigned to room " + roomNo + ",replacing" + room.getAssignedPatient().getName());
+                patient.getPatientRoom().setAssignedPatient(null);
+            } else {
+                System.out.println(patient.getName() + " assigned to room " + roomNo);
+            }
         } else {
-            System.out.println(patient.getName() + " assigned to room " + roomNo);
+            if (patient.getPatientRoom() != null){
+                System.out.println(patient.getName() + " reassigned to room " + roomNo);
+                patient.getPatientRoom().setAssignedPatient(null);
+            } else {
+                System.out.println(patient.getName() + " assigned to room " + roomNo);
+            }
         }
         patient.setPatientRoom(room);
         room.setAssignedPatient(patient);
@@ -381,7 +427,7 @@ public class AdministrativeSide extends AdministrativeServer {
                 list.add(roomNo);
             }
         }
-        HospitalUtils.printSortingList(list,10);
+        HospitalUtils.printSortingList(list,10,false);
         HospitalUtils.delay(1F);
     }
 
@@ -421,4 +467,50 @@ public class AdministrativeSide extends AdministrativeServer {
                         medications + " for medications");
     }
 
+    public static void assignStaff(AdministrativeServer administrativeServer, Room selectedRoom){
+        Scanner scanner = new Scanner(System.in);
+        boolean staffAddPass = false;
+        while (!staffAddPass) {
+            printSeperator();
+            System.out.println("Enter staff name");
+            String possibleName = scanner.nextLine();
+
+            boolean passed = false;
+            for (Employee employee : administrativeServer.getEmployeeList()) {
+                passed = employee.getName().equals(possibleName);
+                if (passed) {
+                    staffAddPass = true;
+
+                    if (employee.getRoomAssigned() != null){
+                        employee.getRoomAssigned().setAssignedEmployee(null);
+                        System.out.println(employee.getName() + " reassigned to room: " + selectedRoom.getRoomNo());
+                    } else {
+                        System.out.println(employee.getName() + " assigned to room: " + selectedRoom.getRoomNo());
+                    }
+                    selectedRoom.setAssignedEmployee(employee);
+                    employee.setAssignedRoom(selectedRoom);
+                    break;
+                }
+            }
+            if (!passed) {
+                System.out.println(possibleName + " is not in staff list, Please try again");
+                HospitalUtils.delay(0.2F);
+            }
+        }
+    }
+
+    @Override
+    public int yesOrNoDeterminer(String input) {
+        switch (input) {
+            case "Y" -> {
+                return 1;
+            }
+            case "N" -> {
+                return 0;
+            }
+            default -> {
+                return -1;
+            }
+        }
+    }
 }

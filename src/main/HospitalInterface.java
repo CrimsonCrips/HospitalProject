@@ -8,7 +8,17 @@ import static main.HospitalUtils.printSortingList;
 
 public interface HospitalInterface {
 
-    int yesOrNoDeterminer();
-
-
+    static int yesOrNoDeterminer(String input) {
+        switch (input) {
+            case "Y" -> {
+                return 1;
+            }
+            case "N" -> {
+                return 0;
+            }
+            default -> {
+                return -1;
+            }
+        }
+    }
 }

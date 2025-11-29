@@ -22,8 +22,8 @@ public class PatientRegistration extends AdministrativeServer {
         while (!conditionsPass) {
             printSeperator();
             System.out.println("Does the patient have any conditions?  Y/N?");
-            switch (scanner.nextLine()) {
-                case "Y" -> {
+            switch (HospitalInterface.yesOrNoDeterminer(scanner.nextLine())) {
+                case 1 -> {
                     printSeperator();
                     HospitalUtils.listAdd(patient.getPatientConditions());
                     printSeperator();
@@ -53,10 +53,10 @@ public class PatientRegistration extends AdministrativeServer {
                     }
                     conditionsPass = true;
                 }
-                case "N" -> {
+                case 0 -> {
                     conditionsPass = true;
                 }
-                default -> {
+                case -1 -> {
                     System.out.println("Unknown response, Please try again");
                     HospitalUtils.delay(0.2F);
                 }
@@ -66,15 +66,15 @@ public class PatientRegistration extends AdministrativeServer {
         boolean emergencyPass = false;
         while (!emergencyPass) {
             System.out.println("Is it an emergency?,  Y/N?");
-            switch (scanner.nextLine()) {
-                case "Y" -> {
+            switch (HospitalInterface.yesOrNoDeterminer(scanner.nextLine())) {
+                case 1 -> {
                     patient.setPriority(true);
                     emergencyPass = true;
                 }
-                case "N" -> {
+                case 0 -> {
                     emergencyPass = true;
                 }
-                default -> {
+                case -1 -> {
                     System.out.println("Unknown response, Please try again");
                     HospitalUtils.delay(0.2F);
                 }

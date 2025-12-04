@@ -22,7 +22,8 @@ public class Employee extends Person {
         assignedRoom = val;
     }
 
-    public Room getAssignedRoom() {
-        return assignedRoom;
+    @Override
+    boolean isAssigned() {
+        return getRoomAssigned() != null;
     }
 }

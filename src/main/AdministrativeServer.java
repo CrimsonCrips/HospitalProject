@@ -37,7 +37,7 @@ public class AdministrativeServer {
     public void viewQueue(AdministrativeServer administrativeServer){
         List<Object> list = new ArrayList<>();
         for (Patient patient : administrativeServer.getAdmissionQueue()){
-            if (patient.getPatientRoom() == null){
+            if (!patient.isAssigned()){
                 String emergencyText = patient.isPriority() ? "EMERGENCY: " : "";
                 list.add(emergencyText + patient.getName() + "(" + patient.getPatientId() + ")");
             }

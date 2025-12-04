@@ -91,8 +91,8 @@ public class PatientRegistration extends AdministrativeServer {
             }
         }
 
-        administrativeServer.getAdmissionQueue().add(patient);
         if (!presentAlready){
+            administrativeServer.getAdmissionQueue().add(patient);
             administrativeServer.getPatientList().add(patient);
             System.out.println("Patient, " + patient.getName() + "(" + patient.getPatientId() + ") successfully registered");
             System.out.println(patient.getPatientConditions());
@@ -101,7 +101,9 @@ public class PatientRegistration extends AdministrativeServer {
                             "Conditions: " + patient.getPatientConditions());
             patient.setPresent(true);
         } else {
-            oldPatient.getPatientConditions().add(patient.getPatientConditions().toString());
+            administrativeServer.getAdmissionQueue().add(oldPatient);
+            oldPatient.setPatientConditions(patient.getPatientConditions());
+
             oldPatient.setPriority(patient.isPriority());
             System.out.println("Patient, " + oldPatient.getName() + "(" + oldPatient.getPatientId() + ") successfully reregistered");
             System.out.println(oldPatient.getPatientConditions());

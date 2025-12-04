@@ -11,6 +11,7 @@ public class Patient extends Person implements Comparable<Patient> {
     private LinkedList<String> historyLogs = new LinkedList<>();
     private List<String> patientConditions = new LinkedList<>();
     private boolean present = false;
+    private double bill = 0F;
 
     public Patient(int id, boolean priority){
         setPriority(priority);
@@ -25,6 +26,13 @@ public class Patient extends Person implements Comparable<Patient> {
         present = val;
     }
 
+    public void setBill(double bill) {
+        this.bill = bill;
+    }
+
+    public double getBill() {
+        return bill;
+    }
 
     public boolean isPriority() {
         return priority;
@@ -58,11 +66,20 @@ public class Patient extends Person implements Comparable<Patient> {
         return patientConditions;
     }
 
+    public void setPatientConditions(List<String> patientConditions) {
+        this.patientConditions = patientConditions;
+    }
+
     public int compareTo(Patient patient) {
         return compare(patient.priority, this.priority);
     }
 
     public static int compare(boolean x, boolean y) {
         return Boolean.compare(x, y);
+    }
+
+    @Override
+    boolean isAssigned() {
+        return getPatientRoom() != null;
     }
 }

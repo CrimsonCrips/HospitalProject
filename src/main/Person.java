@@ -1,6 +1,6 @@
 package main;
 
-public class Person {
+abstract public class Person {
     String personName;
 
     public void setName(String val){
@@ -10,5 +10,7 @@ public class Person {
     public String getName(){
         return personName;
     }
+
+    abstract boolean isAssigned();
 
 }

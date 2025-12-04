@@ -56,7 +56,7 @@ public class AdministrativeSide extends AdministrativeServer implements Hospital
             System.out.println("Welcome " + currentEmployee.getName() + ", What would you like to do?");
             HospitalUtils.delay(0.5F);
 
-            System.out.println("RA - Room Assigning, PM - Patient Management,  R - Return");
+            System.out.println("RA - Room Assigning, PM - Patient Management,  L - Logout");
             switch (scanner.nextLine()) {
                 case "RA" -> {
                     roomManage(administrativeServer,currentEmployee);
@@ -64,7 +64,7 @@ public class AdministrativeSide extends AdministrativeServer implements Hospital
                 case "PM" ->{
                     patientManage(administrativeServer);
                 }
-                case "R" -> {
+                case "L" -> {
                     usingPass = true;
                 }
                 default -> {
@@ -79,8 +79,6 @@ public class AdministrativeSide extends AdministrativeServer implements Hospital
 
     private static void roomManage(AdministrativeServer administrativeServer,Employee currentUser){
         ArrayList<Room> roomList = administrativeServer.getRoomList();
-        ArrayList<Patient> patientList = administrativeServer.getPatientList();
-        ArrayList<Employee> employeeList = administrativeServer.getEmployeeList();
         Scanner scanner = new Scanner(System.in);
 
         boolean roomManagePass = false;
@@ -135,6 +133,7 @@ public class AdministrativeSide extends AdministrativeServer implements Hospital
                                                                 staffQuestion = true;
                                                             }
                                                             case 0 -> {
+                                                                roomManagePass = true;
                                                                 staffQuestion = true;
                                                             }
                                                             case -1 -> {
@@ -156,6 +155,7 @@ public class AdministrativeSide extends AdministrativeServer implements Hospital
                                     case "AS" -> {
                                         assignStaff(administrativeServer, selectedRoom);
                                         currentRoomPass = true;
+                                        roomManagePass = true;
                                     }
                                     case "R" -> {
                                         currentRoomPass = true;
@@ -189,7 +189,7 @@ public class AdministrativeSide extends AdministrativeServer implements Hospital
         System.out.println("Note that patient identification format goes as follows:  Name(ID)");
         List<Object> list = new ArrayList<>();
         for (Patient patient : patientList){
-            String roomPossible = patient.getPatientRoom() != null ? String.valueOf(patient.getPatientRoom().getRoomNo()) : "N/A";
+            String roomPossible = patient.isAssigned() ? String.valueOf(patient.getPatientRoom().getRoomNo()) : "N/A";
             String info = patient.getName() + "(" + patient.getPatientId() + ") Room:" + roomPossible;
 
 
@@ -349,7 +349,7 @@ public class AdministrativeSide extends AdministrativeServer implements Hospital
             HospitalUtils.delay(0.5F);
             printSeperator();
 
-            if (patient.getPatientRoom() != null){
+            if (patient.isAssigned()){
                 System.out.println(patient.getName() + " reassigned to room " + roomNo + ", replacing " + room.getAssignedPatient().getName());
                 patient.getPatientRoom().setAssignedPatient(null);
                 pushRecord(patient.getHistoryLogs(),
@@ -360,7 +360,7 @@ public class AdministrativeSide extends AdministrativeServer implements Hospital
                         "Patient, " + patient.getName() + "(" + patient.getPatientId() + ") assigned to room: " + roomNo);
             }
         } else {
-            if (patient.getPatientRoom() != null){
+            if (patient.isAssigned()){
                 System.out.println(patient.getName() + " reassigned to room " + roomNo);
                 patient.getPatientRoom().setAssignedPatient(null);
                 pushRecord(patient.getHistoryLogs(),
@@ -422,6 +422,19 @@ public class AdministrativeSide extends AdministrativeServer implements Hospital
         }
         System.out.println("\n=== TREATMENT CREATED ===");
         System.out.println(medications);
+        delay(1F);
+        printSeperator();
+        while (true){
+            System.out.println("Input price of medication(s)");
+            try {
+                double price = scanner.nextDouble();
+                currentPatient.setBill(currentPatient.getBill() + price);
+                System.out.println(price + ", given price of medication(s)");
+                break;
+            } catch (InputMismatchException exception){
+                System.out.println("Input " + exception.getMessage() + " is invalid, please try again.");
+            }
+        }
         pushRecord(currentPatient.getHistoryLogs(),
                 "Patient, " + currentPatient.getName() + "(" + currentPatient.getPatientId() + ") assigned with \n" +
                         medications + " for medications");
@@ -441,7 +454,7 @@ public class AdministrativeSide extends AdministrativeServer implements Hospital
                 if (passed) {
                     staffAddPass = true;
 
-                    if (employee.getRoomAssigned() != null){
+                    if (employee.isAssigned()){
                         employee.getRoomAssigned().setAssignedEmployee(null);
                         System.out.println(employee.getName() + " reassigned to room: " + selectedRoom.getRoomNo());
                     } else {

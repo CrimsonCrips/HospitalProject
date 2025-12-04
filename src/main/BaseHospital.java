@@ -68,13 +68,16 @@ public class BaseHospital {
             System.out.println("What would you like to do?");
             HospitalUtils.delay(1F);
 
-            System.out.println("R - Register Patient,  S - Staff Login,  C - Close Program");
+            System.out.println("R - Register Patient,  S - Staff Login, P - Pay Bills,  C - Close Program");
             switch (scanner.nextLine()) {
                 case "R" -> {
                     PatientRegistration.register(administrativeServer);
                 }
                 case "S" -> {
                     AdministrativeSide.adminLogin(administrativeServer);
+                }
+                case "P" -> {
+                    PatientPayment.patientPay(administrativeServer);
                 }
                 case "C" -> {
                     introPass = true;
